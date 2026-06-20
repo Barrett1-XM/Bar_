@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4ead9">
+  <title>mocarpizza店 | 手作披萨点单</title>
+  <style>
+    :root {
+      --ink: #1e1d1a;
+      --cream: #f4ead9;
+      --tomato: #d94b32;
+      --tomato-dark: #b73522;
+      --olive: #6f7b50;
+      --yellow: #f1b846;
+      --paper: #fffaf0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Arial Rounded MT Bold", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(241, 184, 70, .22) 0 7%, transparent 7.5%),
+        radial-gradient(circle at 84% 76%, rgba(111, 123, 80, .15) 0 11%, transparent 11.5%),
+        var(--cream);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: .24;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+    }
+
+    .app {
+      min-height: 100vh;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 26px clamp(22px, 5vw, 76px) 38px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .nav, .actions, .footer { display: flex; align-items: center; }
+    .nav, .footer { justify-content: space-between; gap: 24px; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: inherit;
+      text-decoration: none;
+      font-size: clamp(20px, 2vw, 28px);
+      font-weight: 900;
+    }
+
+    .brand-mark {
+      width: 42px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--tomato);
+      transform: rotate(-8deg);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .brand-mark svg { width: 26px; }
+
+    .nav-tag {
+      margin: 0;
+      padding: 9px 16px;
+      border: 1.5px solid rgba(30, 29, 26, .45);
+      border-radius: 999px;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      font-style: italic;
+      background: rgba(255, 250, 240, .52);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr);
+      align-items: center;
+      gap: clamp(28px, 5vw, 80px);
+      padding: clamp(48px, 7vh, 88px) 0 34px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin: 0 0 22px;
+      padding: 7px 12px;
+      color: var(--tomato-dark);
+      border: 1.5px solid currentColor;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 650px;
+      font-family: Georgia, "Times New Roman", "Songti SC", serif;
+      font-size: clamp(58px, 8.8vw, 132px);
+      font-weight: 900;
+      line-height: .82;
+      letter-spacing: -6px;
+    }
+
+    h1 span {
+      display: block;
+      margin-left: clamp(18px, 5vw, 72px);
+      color: var(--tomato);
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .intro {
+      max-width: 540px;
+      margin: 30px 0 32px;
+      color: #504b42;
+      font-size: clamp(16px, 1.55vw, 20px);
+      line-height: 1.8;
+    }
+
+    .actions { flex-wrap: wrap; gap: 16px 24px; }
+
+    .order-btn {
+      appearance: none;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 16px 25px 16px 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 22px;
+      color: white;
+      background: var(--tomato);
+      box-shadow: 5px 6px 0 var(--ink);
+      font: inherit;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .order-btn:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 3px 0 var(--ink);
+      background: var(--tomato-dark);
+    }
+
+    .order-btn:focus-visible { outline: 4px solid rgba(241, 184, 70, .7); outline-offset: 5px; }
+
+    .arrow {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      border-radius: 50%;
+      background: var(--yellow);
+      font-size: 22px;
+    }
+
+    .proof { display: flex; align-items: center; gap: 9px; font: italic 14px Georgia, serif; }
+    .proof::before { content: "★"; color: var(--tomato); font-size: 20px; }
+
+    .visual {
+      position: relative;
+      min-height: 560px;
+      display: grid;
+      place-items: center;
+    }
+
+    .stamp {
+      position: absolute;
+      top: 1%;
+      right: 3%;
+      z-index: 3;
+      width: 114px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--tomato);
+      border-radius: 50%;
+      color: var(--tomato);
+      background: var(--cream);
+      font: italic 14px/1.15 Georgia, serif;
+      text-align: center;
+      transform: rotate(10deg);
+      box-shadow: 3px 4px 0 var(--tomato);
+    }
+
+    .pizza-wrap {
+      position: relative;
+      width: min(100%, 620px);
+      aspect-ratio: 1.08;
+      animation: arrive .9s cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    .pizza-shadow {
+      position: absolute;
+      left: 10%; right: 7%; bottom: 0;
+      height: 20%;
+      border-radius: 50%;
+      background: rgba(70, 50, 31, .23);
+      filter: blur(16px);
+      transform: rotate(-5deg);
+    }
+
+    .pizza {
+      position: absolute;
+      inset: 2% 5% 8% 3%;
+      transform: rotate(-7deg);
+      filter: drop-shadow(15px 20px 0 rgba(30, 29, 26, .12));
+    }
+
+    .note {
+      position: absolute;
+      right: -1%;
+      bottom: 6%;
+      padding: 13px 16px;
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      box-shadow: 4px 5px 0 var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.5;
+      transform: rotate(-3deg);
+    }
+
+    .footer {
+      padding-top: 24px;
+      border-top: 1px solid rgba(30, 29, 26, .3);
+      color: #625d54;
+      font-size: 12px;
+      letter-spacing: .6px;
+    }
+
+    .menu-preview {
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(30, 29, 26, .72);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .menu-preview.open { opacity: 1; pointer-events: auto; }
+
+    .menu-card {
+      width: min(470px, 100%);
+      padding: 32px;
+      border: 2px solid var(--ink);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: 10px 12px 0 var(--tomato);
+    }
+
+    .menu-card h2 { margin: 0 0 8px; font: 700 38px Georgia, serif; }
+    .menu-card p { margin: 0 0 22px; color: #625d54; line-height: 1.7; }
+    .special { padding: 16px; border-radius: 18px; color: white; background: var(--olive); }
+    .special strong { display: block; margin-bottom: 5px; color: #fff5c7; font-size: 18px; }
+
+    .close-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--yellow);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translate(50px, 35px) rotate(8deg) scale(.86); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 58px; }
+      h1 { letter-spacing: -4px; }
+      .visual { min-height: auto; }
+      .pizza-wrap { width: min(100%, 590px); }
+    }
+
+    @media (max-width: 520px) {
+      .app { padding: 19px 18px 26px; }
+      .nav-tag { display: none; }
+      .hero { gap: 30px; padding-top: 48px; }
+      h1 { font-size: clamp(58px, 22vw, 88px); letter-spacing: -3px; }
+      .intro { margin: 24px 0 26px; }
+      .order-btn { width: 100%; justify-content: space-between; }
+      .stamp { width: 86px; font-size: 11px; }
+      .note { right: 1%; bottom: 1%; }
+      .footer { flex-direction: column; align-items: flex-start; gap: 7px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="#" aria-label="mocarpizza 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M7 7h18L16 27 7 7Z" fill="#f5c55e" stroke="#1e1d1a" stroke-width="2"/><circle cx="14" cy="13" r="2.4" fill="#d94b32"/><circle cx="19" cy="18" r="2.2" fill="#d94b32"/></svg>
+        </span>
+        mocarpizza店
+      </a>
+      <p class="nav-tag">Good mood, great pizza.</p>
+    </nav>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Fresh · Hot · Handmade</p>
+        <h1 id="hero-title">MOCA<span>PIZZA</span></h1>
+        <p class="intro">把今天的好心情，烤进一张披萨里。每日现揉面团、新鲜配料，点击开始定制你的专属美味。</p>
+        <div class="actions">
+          <button class="order-btn" id="orderButton" type="button">开始点单 <span class="arrow" aria-hidden="true">↗</span></button>
+          <span class="proof">现点现烤 · 约 20 分钟</span>
+        </div>
+      </div>
+
+      <div class="visual" aria-label="手作玛格丽特披萨插画">
+        <div class="stamp">BAKED<br>WITH<br>LOVE</div>
+        <div class="pizza-wrap">
+          <div class="pizza-shadow"></div>
+          <svg class="pizza" viewBox="0 0 600 560" role="img" aria-label="新鲜出炉的玛格丽特披萨">
+            <ellipse cx="300" cy="294" rx="245" ry="229" fill="#1e1d1a"/>
+            <ellipse cx="295" cy="280" rx="240" ry="226" fill="#bd713b" stroke="#1e1d1a" stroke-width="7"/>
+            <ellipse cx="295" cy="280" rx="209" ry="194" fill="#e7462e" stroke="#1e1d1a" stroke-width="4"/>
+            <g fill="#f6d870"><path d="M156 191c31-46 76-75 128-87 34 13 47 37 31 57-21 27-74 12-92 47-13 25-38 9-67-17Z"/><path d="M350 116c56 15 99 49 126 94-10 34-39 49-68 29-29-20-43-50-79-55-30-4-29-40 21-68Z"/><path d="M118 284c5-40 25-73 52-94 37 0 66 27 47 56-19 30-54 33-61 73-5 30-36 24-38-35Z"/><path d="M216 321c27-31 77-42 105-15 28 26 9 65-22 77-30 11-46 50-88 31-38-18-22-62 5-93Z"/><path d="M374 282c34-21 85-7 97 30 12 39-26 64-62 55-35-8-62 24-83-14-19-34 14-50 48-71Z"/></g>
+            <g fill="#b92e26" stroke="#1e1d1a" stroke-width="3"><circle cx="242" cy="181" r="25"/><circle cx="392" cy="203" r="26"/><circle cx="175" cy="329" r="24"/><circle cx="309" cy="282" r="26"/><circle cx="396" cy="394" r="23"/><circle cx="270" cy="441" r="22"/></g>
+            <g fill="#71834e" stroke="#1e1d1a" stroke-width="3"><path d="M273 225c29-28 50-22 45 12-7 35-27 38-45-12Z"/><path d="M421 271c31-25 51-16 42 17-11 34-32 34-42-17Z"/><path d="M204 391c31-25 51-16 42 17-11 34-32 34-42-17Z"/><path d="M352 443c31-25 51-16 42 17-11 34-32 34-42-17Z"/><path d="M165 247c30-26 50-18 43 15-9 35-30 36-43-15Z"/></g>
+            <path d="M70 215c27-95 117-164 225-164 129 0 235 103 242 230" fill="none" stroke="#e8a85e" stroke-width="31" stroke-linecap="round"/>
+            <path d="M70 215c27-95 117-164 225-164 129 0 235 103 242 230" fill="none" stroke="#1e1d1a" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+          <div class="note">今日推荐<br>经典玛格丽特 ¥48</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer"><span>© 2026 MOCARPIZZA</span><span>每日 11:00 - 22:00 · 热气腾腾，准时抵达</span></footer>
+  </main>
+
+  <div class="menu-preview" id="menuPreview" role="dialog" aria-modal="true" aria-labelledby="menuTitle" aria-hidden="true">
+    <div class="menu-card">
+      <h2 id="menuTitle">欢迎来到 mocarpizza店</h2>
+      <p>封面已经准备好，下一步可以继续添加披萨选择、规格定制和购物车页面。</p>
+      <div class="special"><strong>今日主厨推荐</strong>经典玛格丽特 · 番茄、马苏里拉、罗勒</div>
+      <button class="close-btn" id="closeButton" type="button">返回封面</button>
+    </div>
+  </div>
+
+  <script>
+    const orderButton = document.getElementById("orderButton");
+    const menuPreview = document.getElementById("menuPreview");
+    const closeButton = document.getElementById("closeButton");
+
+    function openPreview() {
+      menuPreview.classList.add("open");
+      menuPreview.setAttribute("aria-hidden", "false");
+      closeButton.focus();
+    }
+
+    function closePreview() {
+      menuPreview.classList.remove("open");
+      menuPreview.setAttribute("aria-hidden", "true");
+      orderButton.focus();
+    }
+
+    orderButton.addEventListener("click", openPreview);
+    closeButton.addEventListener("click", closePreview);
+    menuPreview.addEventListener("click", (event) => {
+      if (event.target === menuPreview) closePreview();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menuPreview.classList.contains("open")) closePreview();
+    });
+  </script>
+</body>
+</html>
